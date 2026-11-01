@@ -1,3 +1,17 @@
+## 1.4.9 — 2026-11-01
+
+**反过来了：你在 DSH 窗口里自己聊的话被推到了 QQ**
+
+- 🐞 现象：开着「只回 QQ 唤醒」+「自动触发也发」，在窗口里自己聊天，**内容也被发到 QQ**。
+- 根因：1.4.8 修好了「读得到 `source.kind`」，但记「这一轮是谁起的头」那张表是**后写覆盖前写**的。
+  而宿主会跟在你那句话**后面**再塞几条 `user/message`（实测一个回合是 `user` → `runtime-context` → `time-context`），
+  于是你的 `user` 被 `runtime-context` 盖掉 ⇒ 这一轮看起来「不是你打的」⇒ 落到「不是 QQ 唤醒的」那一支，
+  而「自动触发也发」开着就放行了。
+- ✅ 现在**只认第一次**（话头只有一个，就是先开口的那个），而且**跳过搭车的注入**：
+  `runtime-context` / `time-context` / `skill-catalog` / `compact-checkpoint` / `model-selection` /
+  `her-words` / `memory`，外加 `repeat-tool-reminder*` / `plugin:*` 两类前缀。
+- ⚠ 漏网不会炸，只会让那一轮被当成「自动触发」；DSH 以后要是加了新的注入类型，这份名单要补一行。
+
 ## 1.4.8 — 2026-11-01
 
 **QQ 转进来的消息被判成「你在 DSH 窗口里自己打的」—— 「只回 QQ 唤醒」开着时，QQ 那边永远收不到回复**

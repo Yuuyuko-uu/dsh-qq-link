@@ -815,6 +815,40 @@ await new Promise((r) => setTimeout(r, 30))
   桥.测试.清来源(会话.id)
 }
 
+// ⭐ 1.4.9：宿主跟在人那句话**后面**塞的 runtime-context / time-context，不能把「是你打的」改判成别的。
+//   1.4.8 让 kind 真的读出来之后，这两条注入把「你打的」盖成了「不是你打的」，
+//   再配上「自动触发也发」开着 ⇒ **在窗口里自己聊的话被推到了 QQ**（真机上发生过）。
+{
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
+    总开关: true, 试运行: false, 只回QQ唤醒: true, 自动触发也发: true, NapCat: 'http://127.0.0.1:3000',
+    绑定: [{ 类型: '群', 号码: '456', 会话: 'session-G', 称呼: '群里的人' }],
+  }, null, 2), 'utf8')
+  const 会话 = 假群agent.session
+  const 事件 = (类, 文) => ({ type: 'user/message', data: { role: 'user', content: [块('text', 文)], source: 类 ? { kind: 类 } : undefined } })
+  桥.测试.清尾巴(会话.id); 桥.测试.清唤醒(会话.id); 桥.测试.清来源(会话.id)
+  发了.length = 0
+  监听[0](会话, 事件('user', '你在窗口里打的'))       // 她打的（话头）
+  监听[0](会话, 事件('runtime-context', '运行环境'))   // 宿主搭车的
+  监听[0](会话, 事件('time-context', '现在几点'))      // 宿主搭车的
+  监听[0](会话, 助手消息(62, 1, [块('text', '这句不该推到 QQ')], false))
+  监听[0](会话, 转完(62))
+  await new Promise((r) => setTimeout(r, 30))
+  报('1.4.9 你打的 + 宿主塞的两条注入 → 仍然不推 QQ（「自动触发也发」开着也不推）',
+    发了.length === 0, '发了=' + 发了.length)
+
+  // 反过来：QQ 那一轮后面跟着注入，仍然是 QQ 唤醒 → 照发
+  桥.测试.清尾巴(会话.id); 桥.测试.清唤醒(会话.id); 桥.测试.清来源(会话.id)
+  桥.测试.记唤醒(会话.id, '群', false)
+  发了.length = 0
+  监听[0](会话, 事件('qq', 'QQ 里来的'))
+  监听[0](会话, 事件('runtime-context', '运行环境'))
+  监听[0](会话, 助手消息(63, 1, [块('text', 'QQ 那句的回话')], false))
+  监听[0](会话, 转完(63))
+  await new Promise((r) => setTimeout(r, 30))
+  报('1.4.9 QQ 那一轮后面跟一条 runtime-context → 照样推 QQ', 发了.length === 1, '发了=' + 发了.length)
+  桥.测试.清尾巴(会话.id); 桥.测试.清唤醒(会话.id); 桥.测试.清来源(会话.id)
+}
+
 // ㉙ 会话当时是死的 → 这条不丢；把它点活之后，下一跳自己就转进去了，也不会跑到别的会话
 writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, onlyThis: true, NapCat: 'http://127.0.0.1:3000',
