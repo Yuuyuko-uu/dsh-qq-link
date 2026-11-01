@@ -255,7 +255,7 @@ await new Promise((r) => setTimeout(r, 20))
 报('不是目标会话不转发', 发了.length === 之前5)
 
 // ⑥ 试运行开 → fetch 不被打
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: true, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 const 之前6 = 发了.length
@@ -265,7 +265,7 @@ await new Promise((r) => setTimeout(r, 20))
 报('试运行开 → 只记账不真发', 发了.length === 之前6)
 
 // ⑦ 总开关关 → fetch 不被打
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: false, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 const 之前7 = 发了.length
@@ -290,7 +290,7 @@ const 收 = (body) => {
     路由.get('/dsh-qq-bridge/receive')([JSON.stringify(body)], fakeRes).then(() => resolve(存储[0]))
   })
 }
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 
@@ -307,7 +307,7 @@ if (转进的[0]) {
 报('/receive 之后 DSH→QQ 那半也会把伙伴的回话发回 QQ（联动靠 session/event，不在这里再验）', true)
 
 // ⑩ 总开关关 → receive 拒绝
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: false, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 const 之前收 = 转进的.length
@@ -315,21 +315,21 @@ const 之前收 = 转进的.length
 报('/receive：总开关关 → 拒绝、不再 followup', 收到 && 收到.ok === false && 转进的.length === 之前收, JSON.stringify(收到))
 
 // ⑪ 空 text → 拒绝
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 收到 = await 收({ text: '   ' })
 报('/receive：空 text → 拒绝', 收到 && 收到.ok === false, JSON.stringify(收到))
 
 // ⑫ 目标会话没活着 → 拒绝（session-Z 拿不到 agent）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 目标会话: 'session-Z', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 收到 = await 收({ text: '在吗' })
 报('/receive：目标会话没活着 → 拒绝', 收到 && 收到.ok === false && String(收到.说).includes('没活着'), JSON.stringify(收到))
 
 // ⑬ 轮询收消息（QQ → DSH 这半的正式入口，不赖 BOT）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 const 之前转 = 转进的.length
@@ -348,7 +348,7 @@ await new Promise((r) => setTimeout(r, 20))
 报('轮询：同一条消息不重复转', 转进的.length === 之前转 + 1, '转进条数=' + 转进的.length)
 
 // ⑭ 轮询：总开关关 → 不转
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: false, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 私聊消息文本 = '还开着吗'
@@ -359,7 +359,7 @@ await new Promise((r) => setTimeout(r, 20))
 报('轮询：总开关关 → 不转', 转进的.length === 之前转 + 1, '转进条数=' + 转进的.length)
 
 // ⑮ B站 分享卡片（json 段）→ 变成文字递进去（以前整条被当空消息丢掉）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 目标会话: 'session-X', 私聊QQ: '123', 群号: '', 转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
 const 卡 = { app: 'com.tencent.structmsg', meta: { news: {
@@ -403,7 +403,7 @@ const 转发正文 = 转进的.length > 之前转2 ? String(转进的.at(-1).con
 // ⚠ 1.4.3：这个群显式设「全听」—— 这一节只测「各进各的会话」。
 //   以前靠「自己发的话直接放行」那个短路混过去，那条短路已去掉
 //   （「只听点名」现在对群里所有人生效），所以这里要写清楚。
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false,
   绑定: [
     { 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' },
@@ -440,7 +440,7 @@ await new Promise((r) => setTimeout(r, 30))
 报('群会话说完 → 只发群', 发了.length === 1 && 发了[0].url.endsWith('/send_group_msg'), 发了.map((x) => x.url).join(','))
 
 // ⑲ 同一间会话绑两条（私聊 + 群）→ **两边都发**（1.4.0 起支持）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false,
   绑定: [
     { 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' },
@@ -457,7 +457,7 @@ await new Promise((r) => setTimeout(r, 30))
   && 发了.some((x) => x.url.endsWith('/send_group_msg')), 发了.map((x) => x.url).join(','))
 
 // ⑲b 其中一条被关掉 → 只发开着的那条（用群那间会话，别动 session-X 的状态）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false,
   绑定: [
     { 类型: '群', 号码: '456', 会话: 'session-G', 称呼: '群里的人' },
@@ -474,7 +474,7 @@ await new Promise((r) => setTimeout(r, 30))
 
 // ⑳ 称呼分两套：私聊用「私聊称呼」，群里用「群称呼」（群里不止一个人）
 // ⚠ 1.4.3：群显式设「全听」，理由同 ⑰（去掉「自己直接放行」的短路）。
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false,
   绑定: [
     { 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' },
@@ -515,7 +515,7 @@ const 群文案 = String(转进的.at(-1)?.content?.[0]?.text || '')
 私聊消息段 = [{ type: 'forward', data: { id: 'fw-outer' } }]
 私聊消息id = 9040
 私聊消息时间 = Math.floor(Date.now() / 1000) + 600
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 私聊会话: 'session-X', 群会话: 'session-G',
   私聊QQ: '123', 群号: '456', 转私聊: true, 转群: true, 收图: true, 收图最多: 4, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
@@ -554,7 +554,7 @@ const 段头数 = (两段正文.match(/\[合并转发的聊天记录 · 共/g) |
 报('两个嵌套各展开成一段（一共 3 个「聊天记录」标题：外层 + 两个内层）', 段头数 === 3, '标题数=' + 段头数 + ' :: ' + 两段正文)
 
 // ㉕ access_token：填了「令牌」就带 Bearer，没填就照旧
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 私聊会话: 'session-X', 群会话: '', 私聊QQ: '123', 群号: '',
   转私聊: true, 转群: false, 令牌: 'my-secret-token', NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
@@ -569,7 +569,7 @@ await new Promise((r) => setTimeout(r, 40))
 报('带令牌时轮询请求带 Authorization: Bearer', 请求头们.some((x) => String(x.headers.authorization || '') === 'Bearer my-secret-token'), JSON.stringify(请求头们.map((x) => [x.url.slice(-28), x.headers.authorization || '(无)'])))
 报('带令牌时那一轮照样转进来', 转进的.length === 令牌前 + 1)
 
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 私聊会话: 'session-X', 群会话: '', 私聊QQ: '123', 群号: '',
   转私聊: true, 转群: false, 令牌: '', NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
@@ -581,7 +581,7 @@ await new Promise((r) => setTimeout(r, 40))
 报('没填令牌时不带 Authorization（老 NapCat 零变化）', 请求头们.length > 0 && 请求头们.every((x) => !x.headers.authorization), JSON.stringify(请求头们.map((x) => x.headers.authorization || '(无)')))
 
 // ㉖ 回复门槛：挂工具 / 只在被 QQ 叫醒时能关闸 / 关掉就卸下来
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 回复门槛: true, 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: true }],
   NapCat: 'http://127.0.0.1:3000',
@@ -600,7 +600,7 @@ await new Promise((r) => setTimeout(r, 40))
 报('门槛开着 → 给绑了 QQ 的会话挂上 qq_reply_gate', 注册的工具.some((x) => x.name === 'qq_reply_gate'), 注册的工具.map((x) => x.name).join(','))
 const 闸 = 注册的工具.find((x) => x.name === 'qq_reply_gate')
 // ① 配置保持「群 + 门槛开」不变（0.8.2 起没有总开关了，只看这一行）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: true }],
 }, null, 2), 'utf8')
@@ -622,7 +622,7 @@ const r2 = await 闸.execute({ reply: false })
 报('不是 QQ 叫醒的那一轮 → 门槛放行（不让它瞎判）',
   r2.ok === true && String(r2.说).includes('不是 QQ 消息叫起来'), JSON.stringify(r2))
 // ④ 把那一行的门槛取消 → 下一跳卸下来
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: false }],
 }, null, 2), 'utf8')
@@ -634,7 +634,7 @@ const r3 = await 闸.execute({ reply: false })
   r3.ok === true && String(r3.说).includes('没开门槛'), JSON.stringify(r3))
 
 // ㉗ 0.6.0：老配置自动变成「绑定」两行；多群各回各的；私聊不挂门槛
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 私聊会话: 'session-X', 群会话: 'session-G',
   私聊QQ: '123', 群号: '456', 转私聊: true, 转群: true, NapCat: 'http://127.0.0.1:3000',
 }, null, 2), 'utf8')
@@ -648,7 +648,7 @@ const 迁 = await (async () => {
 报('第二条是群、称呼是「群里的人」', 迁.配置.绑定[1].类型 === '群' && 迁.配置.绑定[1].号码 === '456')
 
 // 两个群 → 两间会话：各回各的群
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 转私聊: true, 转群: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [
     { 类型: '群', 号码: '111', 会话: 'session-X', 称呼: '一号群的大家' },
@@ -666,7 +666,7 @@ await new Promise((r) => setTimeout(r, 40))
   JSON.stringify(发了.map((x) => [x.url.slice(-16), x.体.group_id])))
 
 // 只有私聊绑定 + 门槛开着 → 私聊不挂工具
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 回复门槛: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明', 门槛: true }],
 }, null, 2), 'utf8')
@@ -676,7 +676,7 @@ await new Promise((r) => setTimeout(r, 40))
 报('私聊不挂回复门槛（主人私聊就是在跟它说话）', !注册的工具.some((x) => x.name === 'qq_reply_gate'), 注册的工具.map((x) => x.name).join(','))
 
 // ㉘ 0.7.0 出站两闸：[QQ] 块 / 只回 QQ 唤醒
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 只发标记内: true, 只回QQ唤醒: false, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -691,7 +691,7 @@ await new Promise((r) => setTimeout(r, 30))
 await new Promise((r) => setTimeout(r, 30))
 报('「只发标记内」开着：没写块 → 一句都不发', 发了.length === 0, String(发了.length))
 
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 只发标记内: false, 只回QQ唤醒: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [
     { 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' },
@@ -748,8 +748,32 @@ await new Promise((r) => setTimeout(r, 30))
   桥.测试.清来源(会话.id)
 }
 
+// ⭐ 1.4.7：QQ 那一轮里夹一条**没有 source.kind** 的注入（DSH 每轮的 runtime context 就是独立一条
+//   user/message），不该把「这是 QQ 叫醒的」盖掉 —— 1.4.4~1.4.6 就是这样把整轮当成本地手打丢掉的。
+{
+  const 会话 = 假群agent.session
+  const 用户事件 = (源) => ({
+    type: 'user/message',
+    data: { message: { role: 'user', content: [块('text', 'x')], source: 源 ? { kind: 源 } : undefined } },
+  })
+  桥.测试.清尾巴(会话.id)
+  桥.测试.清唤醒(会话.id)
+  桥.测试.清来源(会话.id)
+  桥.测试.记唤醒(会话.id, '群', false)
+  发了.length = 0
+  监听[0](会话, 用户事件('qq'))
+  监听[0](会话, 用户事件(''))
+  监听[0](会话, 助手消息(61, 1, [块('text', '这一轮该发出去')], false))
+  监听[0](会话, 转完(61))
+  await new Promise((r) => setTimeout(r, 30))
+  报('只回QQ唤醒：QQ 那一轮里夹一条无来源注入，仍然推手机', 发了.length === 1, String(发了.length))
+  桥.测试.清唤醒(会话.id)
+  桥.测试.清尾巴(会话.id)
+  桥.测试.清来源(会话.id)
+}
+
 // ㉙ 会话当时是死的 → 这条不丢；把它点活之后，下一跳自己就转进去了，也不会跑到别的会话
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, onlyThis: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -780,7 +804,7 @@ const 语音段 = (f) => [
   { type: 'record', data: { file: f } },
 ]
 const 跑一遍 = async (配置补, id, 段) => {
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000',
     绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
     ...配置补,
@@ -838,7 +862,7 @@ const asr状态 = 存储[0]
 //   这里只验「路有、状态能取」，真装交给插件页上的按钮（人工点）。
 
 // ㉜ 旧消息不补投（会话关着攒下来的，别一打开就冒出来）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 补投窗口分: 10, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -856,7 +880,7 @@ await new Promise((r) => setTimeout(r, 60))
 
 // ㉝ 重启不重投：水位落盘 + 没记录过的聊天从「此刻」开始
 const 状态文件 = join(家, 'qq-bridge-state.json')
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 补投窗口分: 60, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -888,7 +912,7 @@ const asr2 = 存储[0]
 报('/asr-status 带「模型就绪 / 模型目录」', asr2 && typeof asr2.模型就绪 === 'boolean' && String(asr2.模型目录 || '').includes('models'), JSON.stringify({ 就绪: asr2 && asr2.模型就绪, 目: asr2 && asr2.模型目录 }))
 
 // ㉟ 开了「只发 [QQ] 块」时，转进去的消息里要点明这个约定（不然它压根不会写块）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 只发标记内: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -903,7 +927,7 @@ const 带块提示 = 转进的.length > 之前块 ? String(转进的.at(-1).cont
 报('「只发 [QQ] 块」开着 → 转进去的消息里会说明这个约定', 带块提示.includes('[QQ]') && 带块提示.includes('块外'), 带块提示.slice(-90))
 
 // ㊱ 老的两个「转私聊/转群」开关不该再拦发送（加了一行群绑定，群里却收不到回复）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 转私聊: false, 转群: false, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-G', 称呼: '群里的人' }],
 }, null, 2), 'utf8')
@@ -914,7 +938,7 @@ await new Promise((r) => setTimeout(r, 40))
 报('有群绑定就发得出去（老开关 转群=false 不再拦）', 发了.length === 1 && 发了[0].url.endsWith('/send_group_msg'), 发了.map((x) => x.url).join(','))
 
 // ㊲ 群消息要标「谁发的：昵称（QQ号）」；门槛工具必须声明 output（不然注册失败）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 回复门槛: true, NapCat: 'http://127.0.0.1:3000',
   绑定: [
     { 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' },
@@ -922,13 +946,13 @@ writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
   ],
 }, null, 2), 'utf8')
 // 先关一次门槛让旧的卸下来，再打开 → 保证这次会真的重新注册（否则注册表里还是旧对象）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-G', 称呼: '群里的人', 门槛: false }],
 }, null, 2), 'utf8')
 await 轮询回调()
 注册的工具.length = 0
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-G', 称呼: '群里的人', 门槛: true }],
 }, null, 2), 'utf8')
@@ -958,7 +982,7 @@ const 工具 = 注册的工具.find((x) => x.name === 'qq_reply_gate')
 }
 
 // ㊳ 门槛的 reply 用字符串 "false" 也要认（模型常这么传）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: true }],
 }, null, 2), 'utf8')
@@ -976,12 +1000,12 @@ const r2s = 闸2 ? await 闸2.execute({ reply: 'false', reason: '字符串形式
 
 // ㊴ 「真停轮」打开 → 会真的 cancel（下一拍），关着 → 不 cancel
 // 先关一次门槛，让旧的卸下来（否则闸门挂着里还是旧对象，这次不会重新注册）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: false }],
 }, null, 2), 'utf8')
 await 轮询回调()
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 门槛真停轮: true, NapCat: 'http://127.0.0.1:3000', 群里听所有人: true,
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: true }],
 }, null, 2), 'utf8')
@@ -1000,7 +1024,7 @@ await new Promise((r) => setTimeout(r, 30))
 报('cancel 传 kind=user（跟用户按停止一样）', 取消.at(-1) && 取消.at(-1).kind === 'user', JSON.stringify(取消.at(-1)))
 
 // ㊵ 长回复拆段可关：关掉 = 一整段只发一条
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 长回复拆段: false, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -1014,7 +1038,7 @@ const 多段 = ['第一段话', '第二段话', '第三段话'].join(String.from
 监听[0](会话, 转完(60))
 await new Promise((r) => setTimeout(r, 80))
 报('「长回复拆段」关掉 → 一整段只发一条消息', 发了.length === 1 && String(发了[0].体.message[0].data.text).includes('第三段话'), '发了 ' + 发了.length + ' 条')
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 长回复拆段: true, 拆段间隔毫秒: 0, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -1026,7 +1050,7 @@ await new Promise((r) => setTimeout(r, 120))
 
 // ㉛ 0.9.7 用户反馈：设置页「试一句」老是说「这间会话没绑任何 QQ 聊天」
 //   —— 手动测试没有会话可反查，以前直接判定没绑定，于是永远发不出去。
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 私聊QQ: '', 群号: '',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }, null, 2), 'utf8')
@@ -1040,7 +1064,7 @@ await 路由.get('/dsh-qq-bridge/test-send')([JSON.stringify({})], 试发回)
   !!(试发回.体 && 试发回.体.ok && String(试发回.体.说).includes('123')), JSON.stringify(试发回.体))
 
 // 没绑定时要说人话（别再报「会话没绑」这种让人以为是 bug 的句子）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 绑定: [],
 }, null, 2), 'utf8')
 发了.length = 0
@@ -1073,7 +1097,7 @@ await 路由.get('/dsh-qq-bridge/test-send')([JSON.stringify({})], 空绑回)
   模.识别点名([{ type: 'at', data: { qq: '10001' } }], '10001', new Set()) === true)
 
 //   ② 门槛：点名 / 私聊 一律放行（不让模型犹豫着判 false 把整轮停掉）
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '群', 号码: '456', 会话: 'session-X', 称呼: '群里的人', 门槛: true }],
 }, null, 2), 'utf8')
@@ -1130,7 +1154,7 @@ const r8 = await 闸6.execute({ reply: false, reason: '在跟别人聊' })
   私聊消息段 = [{ type: 'forward', data: { id: 'fw-outer3' } }]
   私聊消息id = 9055
   私聊消息时间 = Math.floor(Date.now() / 1000) + 720
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, 私聊会话: 'session-X', 群会话: '',
     绑定: [{ 类型: '私聊', 号码: '789', 会话: 'session-X' }],
     私聊QQ: '789', 群号: '', 转私聊: true, 转群: false, 收图: true, NapCat: 'http://127.0.0.1:3000',
@@ -1203,7 +1227,7 @@ const r8 = await 闸6.execute({ reply: false, reason: '在跟别人聊' })
 {
   const 段 = (文) => [{ type: 'text', data: { text: 文 } }]
   const 睡 = (毫秒) => new Promise((r) => setTimeout(r, 毫秒))
-  const 写 = (号, 窗口) => writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  const 写 = (号, 窗口) => writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, 目标会话: 'session-X', 私聊QQ: 号, 群号: '',
     转私聊: true, 转群: false, NapCat: 'http://127.0.0.1:3000', 合并窗口秒: 窗口,
   }, null, 2), 'utf8')
@@ -1220,7 +1244,8 @@ const r8 = await 闸6.execute({ reply: false, reason: '在跟别人聊' })
   ]
   const 前1 = 转进的.length
   await 轮询回调()
-  await 睡(60)
+  await 睡(3400)                  // ⭐ 1.4.7：窗口按「本机第一次看到」算，未来时间戳不再立刻落袋
+  await 轮询回调()                     // 再跑一跳，窗口过去了这一批才落袋（测试里补跑定时是关掉的）
   报('连着发的三条 → 只转成一条', 转进的.length === 前1 + 1, '转进 ' + (转进的.length - 前1) + ' 条')
   const 攒好的 = String((转进的.at(-1) || { content: [{}] }).content[0].text || '')
   报('那一条里三条都在', 攒好的.includes('图一') && 攒好的.includes('图二') && 攒好的.includes('图三'), 攒好的.slice(0, 120))
@@ -1283,7 +1308,7 @@ const r8 = await 闸6.execute({ reply: false, reason: '在跟别人聊' })
   报('带空格的标记也剥掉', 戊.发 === true && !戊.文字.includes('QQ'), JSON.stringify(戊))
 }
 // 模拟插件重启：每次 apply 重新创建内存状态，只从临时磁盘恢复。
-writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
   总开关: true, 试运行: false, 补投窗口分: 60, NapCat: 'http://127.0.0.1:3000',
   绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
 }), 'utf8')
@@ -1329,7 +1354,7 @@ async function 重启拉取(水位值, 已转, id, time) {
 
 // ⭐ 1.1.8：绑定行自己的开关 —— 关掉就整个静音（不收也不发），不用删掉那一行
 {
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000',
     绑定: [{ 类型: '私聊', 号码: '789', 会话: 'session-X', 开: false }],
   }, null, 2), 'utf8')
@@ -1371,7 +1396,7 @@ async function 重启拉取(水位值, 已转, id, time) {
 // ⭐ 1.2.0：私聊进来的话要不要标来源（默认关；开了才加）
 {
   const 试私聊 = async (署名值) => {
-    writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+    writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
       总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 私聊署名: 署名值, 合并窗口秒: 0,
       绑定: [{ 类型: '私聊', 号码: '789', 会话: 'session-X' }],
     }, null, 2), 'utf8')
@@ -1480,7 +1505,7 @@ async function 重启拉取(水位值, 已转, id, time) {
 // ⭐ 1.4.1：被点名之后，同一个群后面紧跟着的普通消息也放进来（接够条数就停）
 {
   const 睡 = (毫秒) => new Promise((r) => setTimeout(r, 毫秒))
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, 群里听所有人: false, 合并窗口秒: 0, 补投窗口分: 60,
     点名后接听条: 2, 点名后接听秒: 60, NapCat: 'http://127.0.0.1:3000',
     绑定: [{ 类型: '群', 号码: '654', 会话: 'session-G', 称呼: '群里的人' }],
@@ -1528,11 +1553,11 @@ async function 重启拉取(水位值, 已转, id, time) {
 // ⭐ 1.4.1：QQ 空间的四个工具（看说说 / 看详情 / 好友动态 / 发说说）
 {
   // 先清空绑定让空间工具卸下来，再挂回去 —— 挂过一次就不重复挂，不复位一下拿不到新对象
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 绑定: [],
   }, null, 2), 'utf8')
   await 轮询回调()
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 允许发空间动态: false,
     绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X' }],
   }, null, 2), 'utf8')
@@ -1556,7 +1581,7 @@ async function 重启拉取(水位值, 已转, id, time) {
   报('发说说：闸关着 → 真的一个请求都没发', 空间请求.length === 0, JSON.stringify(空间请求.map((x) => x.url)))
 
   // ② 闸开着：真发，带回 tid
-  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
     总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 允许发空间动态: true,
     绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X' }],
   }, null, 2), 'utf8')
