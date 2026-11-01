@@ -203,8 +203,12 @@ const ctx = {
   agents: { get: (id) => (String(id) === 'session-X' ? (X活着 ? 假agent : undefined) : (String(id) === 'session-G' ? (G活着 ? 假群agent : undefined) : undefined)) },
   sessions: { flush: async () => {} },
   interval: (fn) => { 轮询回调 = fn; return () => {} },
-  get: () => undefined,
+  get: (名) => (名 === 'connection' ? 假连接 : undefined),
 }
+
+// ⭐ 1.5.0：管理接口那道门（默认给 undefined = 宿主说「这个请求没问题」）
+let 鉴权回 = undefined
+const 假连接 = { requestRejection: () => 鉴权回 }
 
 const 桥 = 模.apply(ctx)
 报('session/event 监听挂上了', 监听.length >= 1)
@@ -283,6 +287,22 @@ const 状态 = 存储[0]
 报('/state 回出配置', 状态 && 状态.ok === true && 状态.配置 && 状态.配置.总开关 === false, JSON.stringify(状态 && 状态.配置))
 报('/state 探到 NapCat 那个号', 状态 && 状态.NapCat状态 && 状态.NapCat状态.昵称 === '测试号' && 状态.NapCat状态.用户 === 10001, JSON.stringify(状态 && 状态.NapCat状态))
 
+// ⭐ 1.5.0：管理接口那道门 —— 宿主**明确**说不合法才拒；说不出来（或没有这个服务）一律放行
+鉴权回 = 403
+存储.length = 0
+await 路由.get('/dsh-qq-bridge/save')([JSON.stringify({ 总开关: true })], fakeRes)
+报('1.5.0 管理接口：宿主说 403 → 拒，而且不落配置',
+  存储[0] && 存储[0].ok === false && 存储[0].说 === 'management_forbidden', JSON.stringify(存储[0]))
+鉴权回 = 401
+存储.length = 0
+await 路由.get('/dsh-qq-bridge/state')([], fakeRes)
+报('1.5.0 管理接口：宿主说 401 → 拒 /state（它的配置里有令牌，不能裸奔）',
+  存储[0] && 存储[0].ok === false && 存储[0].说 === 'authentication_required', JSON.stringify(存储[0]))
+鉴权回 = undefined
+存储.length = 0
+await 路由.get('/dsh-qq-bridge/state')([], fakeRes)
+报('1.5.0 管理接口：宿主没意见 → 照常放行', 存储[0] && 存储[0].ok === true, JSON.stringify(Object.keys(存储[0] || {})))
+
 // ⑨ QQ → DSH：/receive 把她说的话转进目标会话（followup）
 const 收 = (body) => {
   存储.length = 0
@@ -305,6 +325,48 @@ if (转进的[0]) {
   报('/receive 的来源头说清了「不是主人」', 文.includes('不是主人') && !文.includes('【QQ私聊】'), 文.slice(0, 40))
 }
 报('/receive 之后 DSH→QQ 那半也会把伙伴的回话发回 QQ（联动靠 session/event，不在这里再验）', true)
+
+// ⭐ 1.5.0（issue #29）：收「戳一戳」这类通知（只能靠后端 HTTP 上报，拉历史拉不到）
+{
+  // 假 req：既能被 `for await` 读（数组），又带 url / headers（路由要拿它查口令）
+  const 推 = (body, url = '/dsh-qq-bridge/notice') => {
+    存储.length = 0
+    const req = Object.assign([JSON.stringify(body)], { url, headers: {} })
+    return new Promise((resolve) => {
+      路由.get('/dsh-qq-bridge/notice')(req, fakeRes).then(() => resolve(存储[0]))
+    })
+  }
+  const 写配置 = (额外) => writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({
+    合并窗口秒: 0, 总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000',
+    绑定: [{ 类型: '私聊', 号码: '123', 会话: 'session-X', 称呼: '小明' }],
+    ...额外,
+  }, null, 2), 'utf8')
+
+  写配置({ 收通知: false })
+  let r = await 推({ post_type: 'notice', notice_type: 'poke', user_id: 123, time: 1700000500 })
+  报('1.5.0 收通知关着 → 明说关着（不乱转）', r && r.ok === false && String(r.说).includes('关着'), JSON.stringify(r))
+
+  写配置({ 收通知: true })
+  转进的.length = 0
+  r = await 推({ post_type: 'notice', notice_type: 'poke', user_id: 123, time: 1700000501 })
+  报('1.5.0 戳一戳 → 转进会话，并且带「戳一戳」来源头',
+    r && r.ok === true && 转进的.length === 1 && String(转进的[0].content[0].text).includes('戳一戳'),
+    JSON.stringify(r) + ' / ' + (转进的[0] ? String(转进的[0].content[0].text).slice(0, 40) : ''))
+
+  转进的.length = 0
+  r = await 推({ post_type: 'message', message_type: 'private', user_id: 123, raw_message: '这条轮询会收' })
+  报('1.5.0 上报把**消息**也推过来时 → 明确忽略（不然一条话进来两次）',
+    转进的.length === 0 && r && r.ok === true && String(r.说).includes('不重复'), JSON.stringify(r))
+
+  写配置({ 收通知: true, 通知口令: 'abc123' })
+  转进的.length = 0
+  r = await 推({ post_type: 'notice', notice_type: 'poke', user_id: 123, time: 1700000502 })
+  报('1.5.0 设了口令但地址没带 → 拒', 转进的.length === 0 && r && r.ok === false && String(r.说).includes('口令'), JSON.stringify(r))
+
+  转进的.length = 0
+  r = await 推({ post_type: 'notice', notice_type: 'poke', user_id: 123, time: 1700000503 }, '/dsh-qq-bridge/notice?token=abc123')
+  报('1.5.0 口令对 → 照转', 转进的.length === 1, JSON.stringify(r))
+}
 
 // ⑩ 总开关关 → receive 拒绝
 writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
