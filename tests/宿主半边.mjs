@@ -617,6 +617,46 @@ await new Promise((r) => setTimeout(r, 20))
 监听[0](会话, 转完(23))
 await new Promise((r) => setTimeout(r, 40))
 报('判定不接之后那一轮：一个字都不发到 QQ', 发了.length === 0, '发了=' + 发了.length)
+
+// ⭐ 1.4.8（issue #27）：静默标记只对**触发它的那一轮**有效 —— 不能漏到下一轮把话吞掉。
+//   触发它的那一轮如果没有「说完」就结束（被真停轮 cancel 成 aborted、或者一个字都没说出来），
+//   以前那条清理路根本走不到，标记就一直挂着，下一轮正常的话会被整轮跳过。
+群消息文本 = '这条跟它没关系'
+群消息id = 9080
+群消息时间 = Math.floor(Date.now() / 1000) + 2000
+await 轮询回调()
+await new Promise((r) => setTimeout(r, 40))
+const r2b = await 闸.execute({ reply: false, reason: '跟我无关' })
+报('1.4.8 前置：再判一次不接', r2b.ok === true && String(r2b.说).includes('不接'), JSON.stringify(r2b))
+监听[0](会话, 转完(24, 'aborted'))     // 这一轮以 aborted 收尾（真停轮 cancel 的那种）
+await new Promise((r) => setTimeout(r, 20))
+群消息文本 = '在吗'
+群消息id = 9081
+群消息时间 = Math.floor(Date.now() / 1000) + 3000
+await 轮询回调()
+await new Promise((r) => setTimeout(r, 40))
+发了.length = 0
+监听[0](会话, 助手消息(25, 1, [块('text', '在的')], false))
+监听[0](会话, 转完(25))
+await new Promise((r) => setTimeout(r, 40))
+报('1.4.8 判过「不接」之后，下一轮照常发出去（静默标记不带进下一轮）',
+  发了.length > 0, '发了=' + 发了.length)
+
+// 同理：turn/start 一到，上一轮的标记立刻作废（宿主被杀 / 会话被换掉时没有 turn/end）
+群消息文本 = '再来一条'
+群消息id = 9082
+群消息时间 = Math.floor(Date.now() / 1000) + 4000
+await 轮询回调()
+await new Promise((r) => setTimeout(r, 40))
+const r2c = await 闸.execute({ reply: false, reason: '还是不接' })
+监听[0](会话, { type: 'turn/start', data: { turn: 26 } })   // 没有 turn/end，直接开新一轮
+await new Promise((r) => setTimeout(r, 20))
+发了.length = 0
+监听[0](会话, 助手消息(26, 1, [块('text', '这一轮该发出去')], false))
+监听[0](会话, 转完(26))
+await new Promise((r) => setTimeout(r, 40))
+报('1.4.8 turn/start 会清掉上一轮的静默标记（没有 turn/end 也不会被吞）',
+  r2c.ok === true && 发了.length > 0, '发了=' + 发了.length)
 // ③ 再调一次（不在 QQ 唤醒窗口内）→ 拒绝
 const r2 = await 闸.execute({ reply: false })
 报('不是 QQ 叫醒的那一轮 → 门槛放行（不让它瞎判）',
@@ -731,7 +771,9 @@ await new Promise((r) => setTimeout(r, 30))
   const 会话 = 假群agent.session
   const 用户事件 = (源) => ({
     type: 'user/message',
-    data: { message: { role: 'user', content: [块('text', '她在窗口里打的字')], source: 源 ? { kind: 源 } : undefined } },
+    // ⚠⚠ 1.4.8：真实形状是 `data = { id, role, content, source }` —— **没有 message 包装**。
+    //   以前这里写成 `data.message.source`，于是测试跟着错、真机上永远认不出来源。
+    data: { role: 'user', content: [块('text', '她在窗口里打的字')], source: 源 ? { kind: 源 } : undefined },
   })
   桥.测试.清尾巴(会话.id)
   桥.测试.清唤醒(会话.id)
@@ -754,7 +796,8 @@ await new Promise((r) => setTimeout(r, 30))
   const 会话 = 假群agent.session
   const 用户事件 = (源) => ({
     type: 'user/message',
-    data: { message: { role: 'user', content: [块('text', 'x')], source: 源 ? { kind: 源 } : undefined } },
+    // ⚠⚠ 1.4.8：真实形状（`data.source`，没有 message 包装）
+    data: { role: 'user', content: [块('text', 'x')], source: 源 ? { kind: 源 } : undefined },
   })
   桥.测试.清尾巴(会话.id)
   桥.测试.清唤醒(会话.id)
