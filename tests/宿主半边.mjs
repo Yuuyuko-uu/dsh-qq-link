@@ -1749,12 +1749,17 @@ async function 重启拉取(水位值, 已转, id, time) {
 
   // ④ 看说说
   空间列表回 = { status: 'ok', retcode: 0, data: { total: 2, msglist: [
-    { tid: 555, content: '第一条说说', time: 1700000000, comment_num: 3, is_private: true, images: ['a.jpg', 'b.jpg'] },
-    { tid: 556, content: '长'.repeat(300), time: 1700000100, comment_num: 0, is_private: false, images: [] },
+    { tid: '26150391e0caf16a33140000', content: '第一条说说', time: 1700000000, comment_num: 3, is_private: true, images: ['a.jpg', 'b.jpg'] },
+    { tid: '26150391e0caf16a33140001', content: '长'.repeat(300), time: 1700000100, comment_num: 0, is_private: false, images: [] },
   ] } }
   const 列表 = await 找工具('qq_space_list').execute({})
   报('看说说：带回总数和每一条的 tid',
-    String(列表.说).includes('共 2 条说说') && String(列表.说).includes('tid 555') && String(列表.说).includes('tid 556'), 列表.说)
+    String(列表.说).includes('共 2 条说说')
+      && String(列表.说).includes('tid "26150391e0caf16a33140000"')
+      && String(列表.说).includes('tid "26150391e0caf16a33140001"'), 列表.说)
+  // ⭐ 1.5.5：tid 是字符串，输出必须带引号 —— 不带引号，模型照着抄就是非法 JSON，整轮直接判失败
+  报('看说说：tid 是带引号的字符串',
+    !/tid (?!")/.test(String(列表.说)), 列表.说)
   报('看说说：时间 / 评论数 / 私密 / 图片数都在',
     String(列表.说).includes('评论 3') && String(列表.说).includes('私密') && String(列表.说).includes('图 2 张'), 列表.说)
   报('看说说：长正文截断到 200 字', !String(列表.说).includes('长'.repeat(201)), '长度 ' + String(列表.说).length)
@@ -1780,11 +1785,24 @@ async function 重启拉取(水位值, 已转, id, time) {
   报('好友动态：说了还有更多', String(动态.说).includes('还有更多'), 动态.说)
 
   // ⑧ 一条说说的详情 + 评论
-  空间详情回 = { status: 'ok', retcode: 0, data: { tid: 555, content: '第一条说说', comment_num: 1,
+  空间详情回 = { status: 'ok', retcode: 0, data: { tid: '26150391e0caf16a33140000', content: '第一条说说', comment_num: 1,
     comments: [{ uin: 10002, nickname: '阿甲', content: '好看', time: 1700000300 }] } }
-  const 详情 = await 找工具('qq_space_detail').execute({ tid: 555 })
+  空间请求.length = 0
+  const 详情 = await 找工具('qq_space_detail').execute({ tid: '26150391e0caf16a33140000' })
   报('看详情：正文和评论都出来了',
     String(详情.说).includes('第一条说说') && String(详情.说).includes('阿甲') && String(详情.说).includes('好看'), 详情.说)
+  const 详情请求 = 空间请求.find((x) => x.url.endsWith('/get_qzone_msg_detail'))
+  // ⭐ 1.5.5：以前这里是 integer + Math.round(Number())，十六进制转成 NaN、长数字还会丢精度
+  报('看详情：tid 原样当字符串传下去（没转数字、没丢精度）',
+    Boolean(详情请求) && 详情请求.体.tid === '26150391e0caf16a33140000',
+    JSON.stringify(详情请求 && 详情请求.体))
+  报('看详情：schema 里 tid 声明成字符串',
+    (找工具('qq_space_detail').parameters.properties.tid || {}).type === 'string',
+    JSON.stringify(找工具('qq_space_detail').parameters.properties.tid))
+  const 数字tid = await 找工具('qq_space_detail').execute({ tid: 555 })
+  报('看详情：模型还是给数字也照收（转成字符串再用）',
+    数字tid.ok === true && Boolean(空间请求.find((x) => x.url.endsWith('/get_qzone_msg_detail') && x.体.tid === '555')),
+    JSON.stringify(空间请求.map((x) => x.体 && x.体.tid)))
 }
 
 // ⭐ 1.5.0：配置规整 —— 空间定时发（补零 / 坏值丢掉 / 权只认 1·4·64 / 最多 12 条）、看圈分钟的上下限
