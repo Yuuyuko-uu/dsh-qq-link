@@ -195,8 +195,15 @@ const 假群agent = {
   cancel: async () => {},
   ctx: { tools: { register: (t) => { 注册的工具.push(t); return () => { t.__卸了 = true } } } },
 }
+const 事件监听 = new Map()   // 名字 -> [cb]
+const 发事件 = (名, 载荷) => { for (const cb of (事件监听.get(名) || [])) cb(载荷) }
 const ctx = {
-  on: (名字, cb) => { if (名字 === 'session/event') 监听.push(cb); return () => {} },
+  on: (名字, cb) => {
+    if (名字 === 'session/event') 监听.push(cb)
+    if (!事件监听.has(名字)) 事件监听.set(名字, [])
+    事件监听.get(名字).push(cb)
+    return () => {}
+  },
   effect: (fn) => { const 摘 = fn(); return () => { try { 摘 && 摘() } catch {} } },
   webServer: { register: (o) => 路由.set(o.path, o.handler) },
   logger: { info: (t) => { try { (globalThis.__桥日志 ||= []).push(String(t)) } catch {} } },
@@ -1803,6 +1810,34 @@ async function 重启拉取(水位值, 已转, id, time) {
   报('看详情：模型还是给数字也照收（转成字符串再用）',
     数字tid.ok === true && Boolean(空间请求.find((x) => x.url.endsWith('/get_qzone_msg_detail') && x.体.tid === '555')),
     JSON.stringify(空间请求.map((x) => x.体 && x.体.tid)))
+}
+
+// ⭐ 1.5.6：会话一建出来就当场挂，不等轮询那一跳
+//   （以前只靠「收消息那一跳」顺带挂，重启后第一句比那一跳快，工具表就少几条 → 前缀变 → 全量重算）
+{
+  writeFileSync(join(家, 'qq-bridge-config.json'), JSON.stringify({ 合并窗口秒: 0,
+    总开关: true, 试运行: false, NapCat: 'http://127.0.0.1:3000', 允许发空间动态: false,
+    绑定: [
+      { 类型: '私聊', 号码: '123', 会话: 'session-X' },
+      { 类型: '群', 号码: '456', 会话: 'session-G', 门槛: true },
+    ],
+  }, null, 2), 'utf8')
+  注册的工具.length = 0
+  // 关键：这里**不跑轮询那一跳**，只发 agent/created
+  发事件('agent/created', { agent: 假群agent })
+  const 名们 = 注册的工具.map((t) => String(t.name))
+  报('agent/created 一到就把四个空间工具挂上，不用等轮询',
+    名们.includes('qq_space_list') && 名们.includes('qq_space_detail')
+      && 名们.includes('qq_space_feeds') && 名们.includes('qq_space_post'),
+    名们.join(','))
+  报('agent/created 也把群的门槛工具挂上了',
+    名们.includes('qq_reply_gate'), 名们.join(','))
+
+  // 会话换了实例（重开 / 插件重载）也要重挂，不能因为「sid 已经记过」就不挂
+  注册的工具.length = 0
+  发事件('agent/created', { agent: 假群agent })
+  const 又 = 注册的工具.map((t) => String(t.name))
+  报('同一个实例再来一次不会重复挂', 又.length === 0, 又.join(','))
 }
 
 // ⭐ 1.5.0：配置规整 —— 空间定时发（补零 / 坏值丢掉 / 权只认 1·4·64 / 最多 12 条）、看圈分钟的上下限
